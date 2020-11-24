@@ -1,6 +1,6 @@
 package ru.job4j.tracker;
 
-import java.util.Random;
+import java.util.List;
 /**
  * TrackerSingleEager.
  *
@@ -10,21 +10,6 @@ import java.util.Random;
  */
 public class TrackerSingleEager extends BaseTracker {
     private static final TrackerSingleEager INSTANCE = new TrackerSingleEager();
-
-    /**
-     * Random.
-     */
-    private static final Random RN = new Random();
-
-    /**
-     * Item's storage.
-     */
-    private final Item[] items = new Item[100];
-
-    /**
-     * Cell pointer for a new Item.
-     */
-    private int position = 0;
 
     private TrackerSingleEager() {
     }
@@ -80,7 +65,7 @@ public class TrackerSingleEager extends BaseTracker {
      *
      * @return result[] All Items.
      */
-    public Item[] findAll() {
+    public List<Item> findAll() {
         return super.findAll();
     }
 
@@ -89,7 +74,7 @@ public class TrackerSingleEager extends BaseTracker {
      *
      * @param key Searching key.
      */
-    public Item[] findByName(String key) {
+    public List<Item> findByName(String key) {
         return super.findByName(key);
     }
 

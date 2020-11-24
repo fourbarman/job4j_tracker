@@ -1,5 +1,7 @@
 package ru.job4j.tracker;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -11,21 +13,6 @@ import java.util.Random;
  */
 public class TrackerSingleLazy extends BaseTracker {
     private static TrackerSingleLazy instance;
-    /**
-     * Random.
-     */
-
-    private static final Random RN = new Random();
-
-    /**
-     * Item's storage.
-     */
-    private final Item[] items = new Item[100];
-
-    /**
-     * Cell pointer for a new Item.
-     */
-    private int position = 0;
 
     private TrackerSingleLazy() {
     }
@@ -84,7 +71,7 @@ public class TrackerSingleLazy extends BaseTracker {
      *
      * @return result[] All Items.
      */
-    public Item[] findAll() {
+    public List<Item> findAll() {
         return super.findAll();
     }
 
@@ -93,7 +80,7 @@ public class TrackerSingleLazy extends BaseTracker {
      *
      * @param key Searching key.
      */
-    public Item[] findByName(String key) {
+    public List<Item> findByName(String key) {
         return super.findByName(key);
     }
 

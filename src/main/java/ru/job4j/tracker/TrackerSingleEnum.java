@@ -1,7 +1,9 @@
 package ru.job4j.tracker;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+
 /**
  * TrackerSingleEnum.
  *
@@ -19,12 +21,7 @@ public enum TrackerSingleEnum implements Tracker {
     /**
      * Item's storage.
      */
-    private final Item[] items = new Item[100];
-
-    /**
-     * Cell pointer for a new Item.
-     */
-    private int position = 0;
+    private final List<Item> items = new ArrayList<>();
 
     /**
      * Generate ID.
@@ -38,7 +35,7 @@ public enum TrackerSingleEnum implements Tracker {
         if (item != null) {
             item.setId(this.generateId());
             item.setTime(System.currentTimeMillis());
-            this.items[this.position++] = item;
+            this.items.add(item);
         }
         return item;
     }
@@ -59,16 +56,12 @@ public enum TrackerSingleEnum implements Tracker {
      * @param item New Item.
      */
     public boolean replace(String id, Item item) {
-        boolean success = false;
-        for (int i = 0; i < this.position; i++) {
-            if (this.items[i] != null && this.items[i].getId().equals(id)) {
-                item.setTime(System.currentTimeMillis());
-                item.setId(id);
-                this.items[i] = item;
-                success = true;
-            }
+        int index = this.findIndex(id);
+        if (index != -1) {
+            this.items.set(index, item);
+            return true;
         }
-        return success;
+        return false;
     }
 
     /**
@@ -78,16 +71,12 @@ public enum TrackerSingleEnum implements Tracker {
      * @return if success
      */
     public boolean delete(String id) {
-        boolean success = false;
-        for (int i = 0; i < this.position; i++) {
-            if (items[i].getId().equals(id)) {
-                items[i] = null;
-                System.arraycopy(this.items, i + 1, this.items, i, this.position - i - 1);
-                this.position--;
-                success = true;
-            }
+        int index = this.findIndex(id);
+        if (index != -1) {
+            this.items.remove(index);
+            return true;
         }
-        return success;
+        return false;
     }
 
     /**
@@ -95,8 +84,8 @@ public enum TrackerSingleEnum implements Tracker {
      *
      * @return result[] All Items.
      */
-    public Item[] findAll() {
-        return Arrays.copyOf(this.items, position);
+    public List<Item> findAll() {
+        return this.items;
     }
 
     /**
@@ -104,16 +93,14 @@ public enum TrackerSingleEnum implements Tracker {
      *
      * @param key Searching key.
      */
-    public Item[] findByName(String key) {
-        Item[] result = new Item[this.items.length];
-        int found = 0;
-        for (int i = 0; i < this.position; i++) {
-            if (this.items[i] != null && key != null && this.items[i].getName().contains(key)) {
-                result[found] = items[i];
-                found++;
+    public List<Item> findByName(String key) {
+        List<Item> result = new ArrayList<>();
+        for (int i = 0; i < this.items.size(); i++) {
+            if (key.equals(this.items.get(i).getName())) {
+                result.add(this.items.get(i));
             }
         }
-        return Arrays.copyOf(result, found);
+        return result;
     }
 
     /**
@@ -122,12 +109,27 @@ public enum TrackerSingleEnum implements Tracker {
      * @param id ID.
      */
     public Item findById(String id) {
-        Item item = null;
-        for (int i = 0; i < items.length; i++) {
-            if (items[i] != null && items[i].getId().equals(id)) {
-                item = items[i];
+        int index = findIndex(id);
+        if (index != -1) {
+            return this.items.get(index);
+        }
+        return null;
+    }
+
+    /**
+     * Find Item index by ID.
+     *
+     * @param id ID.
+     * @return index.
+     */
+    private int findIndex(String id) {
+        int index = -1;
+        for (int i = 0; i < this.items.size(); i++) {
+            if (id.equals(this.items.get(i).getId())) {
+                index = i;
+                break;
             }
         }
-        return item;
+        return index;
     }
 }

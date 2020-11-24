@@ -1,7 +1,9 @@
 package ru.job4j.tracker;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+
 /**
  * Tracker.
  *
@@ -40,16 +42,18 @@ public interface Tracker {
     /**
      * Shows all Items.
      *
-     * @return result[] All Items.
+     * @return List<Item> All Items.
      */
-    Item[] findAll();
+    List<Item> findAll();
 
     /**
      * Find Items by key.
      *
      * @param key Searching key.
+     * @return List<Item> List of found items.
      */
-    Item[] findByName(String key);
+    //Item[] findByName(String key);
+    List<Item> findByName(String key);
 
     /**
      * Find Item by ID.
