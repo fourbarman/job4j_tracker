@@ -56,7 +56,7 @@ public class TrackerNotSingle extends BaseTracker {
     /**
      * Shows all Items.
      *
-     * @return result[] All Items.
+     * @return List<Item> All Items.
      */
     public List<Item> findAll() {
         return super.findAll();

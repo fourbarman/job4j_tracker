@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
@@ -13,7 +12,7 @@ import static org.junit.Assert.*;
  * Test.
  *
  * @author fourbarman (mailto:maks.java@yandex.ru)
- * @version 1
+ * @version 2
  * @since 21.11.2020.
  */
 public class TrackerTest {
@@ -21,6 +20,10 @@ public class TrackerTest {
     Item item1, item2, item3, item4, item5, newItem;
     List<Item> itemList;
 
+    /**
+     * Test FindAll.
+     * When storage is empty.
+     */
     @Before
     public void setVar() {
         tracker = new TrackerNotSingle();
@@ -69,29 +72,12 @@ public class TrackerTest {
     /////////////////////////////////////////////
 
     /**
-     * Test add().
-     * When add 5 items to storage than storage contain that items.
-     */
-    @Test
-    public void whenAddFiveItemThenStorageContainsFiveItems() {
-        tracker.add(item1);
-        tracker.add(item2);
-        tracker.add(item3);
-        tracker.add(item4);
-        tracker.add(item5);
-        assertThat(tracker.findAll().size(), is(5));
-        assertTrue(tracker.findAll().containsAll(itemList));
-    }
-/////////////////////////////////
-
-    /**
      * Test add.
      * When add null item.
      */
     @Test
     public void whenAddNewNullItemTheStorageIsEmpty() {
-        tracker.add(null);
-        assertTrue(tracker.findAll().isEmpty());
+        assertNull(tracker.add(null));
     }
 
     /**
@@ -100,21 +86,19 @@ public class TrackerTest {
      */
     @Test
     public void whenAddNewItemTheStorageContainsTheSameItem() {
-        tracker.add(item1);
-        assertThat(tracker.findAll().size(), is(1));
-        assertThat(tracker.findAll().get(0).hashCode(), is(item1.hashCode()));
+        assertThat(tracker.add(item1), is(item1));
     }
 
     /**
      * Test add.
-     * When add one item than tracker contain that item.
+     * When add three items than tracker contain that items.
      */
     @Test
     public void whenAddThreeNewItemsTheStorageContainsSameItems() {
-        tracker.add(item1);
-        tracker.add(item2);
-        tracker.add(item3);
-        assertThat(tracker.findAll(), is(itemList));
+        assertThat(tracker.add(item1), is(item1));
+        assertThat(tracker.add(item2), is(item2));
+        assertThat(tracker.add(item3), is(item3));
+        assertThat(tracker.findAll().size(), is(3));
     }
 ///////////////////////////////////
 
@@ -132,7 +116,7 @@ public class TrackerTest {
 
     /**
      * Test findById.
-     * When found by id.
+     * When found by id than return item found.
      */
     @Test
     public void whenFoundById() {
@@ -154,6 +138,7 @@ public class TrackerTest {
         assertNull(tracker.findById("testId"));
     }
 //////////////////
+
     /**
      * Test findByName.
      * When not found by name then return null.
@@ -165,6 +150,7 @@ public class TrackerTest {
         tracker.add(item3);
         assertNull(tracker.findByName(null));
     }
+
     /**
      * Test findByName.
      * When found one item by unique name.
@@ -177,9 +163,10 @@ public class TrackerTest {
         assertThat(tracker.findByName(item2.getName()).size(), is(1));
         assertThat(tracker.findByName(item2.getName()).get(0), is(item2));
     }
+
     /**
      * Test findByName.
-     * When found five items by name.
+     * When found five items by name than tracker contains all 5.
      */
     @Test
     public void whenFoundBySameNameThenReturnSameItems() {
@@ -188,8 +175,10 @@ public class TrackerTest {
         tracker.add(item3);
         tracker.add(item4);
         tracker.add(item5);
+        assertTrue(tracker.findByName("Item").containsAll(itemList));
         assertThat(tracker.findByName("Item").size(), is(5));
     }
+
     /**
      * Test findByName.
      * When not found by name then return null.
@@ -199,21 +188,23 @@ public class TrackerTest {
         tracker.add(item1);
         tracker.add(item2);
         tracker.add(item3);
-        assertNull(tracker.findByName("testName"));
+        assertTrue(tracker.findByName("testName").isEmpty());
     }
 ///////////////////////////////
+
     /**
      * Test delete.
-     * When delete one item from tracker with 3 items than success and 2 items left.
+     * When delete null item from tracker with 3 items than return false and nothing deleted.
      */
     @Test
     public void whenDeleteItemWithNullId() {
         tracker.add(item1);
         tracker.add(item2);
         tracker.add(item3);
-        assertThat(tracker.delete(null), is(false));
-        //assertThat(tracker.findAll().size(), is(3));
+        assertFalse(tracker.delete(null));
+        assertThat(tracker.findAll().size(), is(3));
     }
+
     /**
      * Test delete.
      * When delete one item from tracker with 3 items than success and 2 items left.
@@ -223,76 +214,50 @@ public class TrackerTest {
         tracker.add(item1);
         tracker.add(item2);
         tracker.add(item3);
-        assertThat(tracker.delete(item2.getId()), is(true));
+        assertTrue(tracker.delete(item2.getId()));
+        assertFalse(tracker.findAll().contains(item2));
         assertThat(tracker.findAll().size(), is(2));
     }
-//
-//    @Test
-//    public void whenDeleteItemThenStorageDoesNotContainIt() {
-//        tracker.add(item1);
-//        tracker.add(item2);
-//        tracker.add(item3);
-//        tracker.delete(item2.getId());
-//        assertThat(tracker.findAll().length, is(2));
-//    }
-//
-//    @Test
-//    public void whenDeleteItemThenMoveNextItemOnDeletedPlace() {
-//        Item[] expected = {item1, item3, item4, item5};
-//        tracker.add(item1);
-//        tracker.add(item2);
-//        tracker.add(item3);
-//        tracker.add(item4);
-//        tracker.add(item5);
-//        tracker.delete(item2.getId());
-//        assertThat(tracker.findAll(), is(expected));
-//    }
-//
-//    @Test
-//    public void whenDeleteItemWithWrongIdThenReturnFalse() {
-//        tracker.add(item1);
-//        tracker.add(item2);
-//        tracker.add(item3);
-//        assertThat(tracker.delete("wrong id"), is(false));
-//    }
-//
-//    @Test
-//    public void whenDeleteItemWithWrongIdThenStorageNotChanged() {
-//        tracker.add(item1);
-//        tracker.add(item2);
-//        tracker.add(item3);
-//        Item[] expected = tracker.findAll();
-//        tracker.delete("wrong id");
-//        assertThat(tracker.findAll(), is(expected));
-//    }
-//
-//    /**
-//     * Test replace.
-//     */
-//    @Test
-//    public void whenReplaceItemThenStorageHasSameNumberOfItems() {
-//        tracker.add(item1);
-//        tracker.add(item2);
-//        tracker.add(item3);
-//        tracker.replace(item2.getId(), newItem);
-//        assertThat(tracker.findAll().length, is(3));
-//    }
-//
-//    @Test
-//    public void whenReplaceItemThenSuccess() {
-//        tracker.add(item1);
-//        tracker.add(item2);
-//        tracker.add(item3);
-//        assertThat(tracker.replace(item2.getId(), newItem), is(true));
-//    }
-//
-//    @Test
-//    public void whenReplaceItemThenNewItemOnTheReplacedPosition() {
-//        newItem.setId(item2.getId());
-//        tracker.add(item1);
-//        tracker.add(item2);
-//        tracker.add(item3);
-//        tracker.replace(item2.getId(), newItem);
-//        assertThat(tracker.findById(item2.getId()).getName(), is("newItem"));
-//    }
+
+    /**
+     * Test delete.
+     * When delete one item from tracker wrong Id than false and all items left.
+     */
+    @Test
+    public void whenDeleteItemWithWrongIdThenReturnFalse() {
+        tracker.add(item1);
+        tracker.add(item2);
+        tracker.add(item3);
+        assertFalse(tracker.delete("wrong id"));
+        assertThat(tracker.findAll().size(), is(3));
+    }
+/////////////////////////////////
+
+    /**
+     * Test replace.
+     * When replace item with null Id and null Name than false and storage didn't change.
+     */
+    @Test
+    public void whenReplaceItemWithNullId() {
+        tracker.add(item1);
+        tracker.add(item2);
+        tracker.add(item3);
+        assertFalse(tracker.replace(null, null));
+        assertThat(tracker.findAll().size(), is(3));
+    }
+
+    /**
+     * Test replace.
+     * When replace item than success and storage capacity didn't change and storage contains new item with old Id.
+     */
+    @Test
+    public void whenReplaceItemThenStorageHasSameNumberOfItems() {
+        tracker.add(item1);
+        tracker.add(item2);
+        tracker.add(item3);
+        assertTrue(tracker.replace(item2.getId(), newItem));
+        assertThat(tracker.findAll().size(), is(3));
+        assertTrue(tracker.findAll().contains(newItem));
+        assertThat(tracker.findById(item2.getId()), is(newItem));
+    }
 }

@@ -58,6 +58,7 @@ public abstract class BaseTracker implements Tracker {
     public boolean replace(String id, Item item) {
         int index = this.findIndex(id);
         if (index != -1) {
+            item.setId(id);
             this.items.set(index, item);
             return true;
         }
@@ -95,10 +96,14 @@ public abstract class BaseTracker implements Tracker {
      * @return List<Item> list.
      */
     public List<Item> findByName(String key) {
-        List<Item> result = new ArrayList<>();
-        for (int i = 0; i < this.items.size(); i++) {
-            if (key.equals(this.items.get(i).getName())) {
-                result.add(this.items.get(i));
+        if (key != null) {
+            List<Item> result = new ArrayList<>();
+            Item item;
+            for (int i = 0; i < this.items.size(); i++) {
+                item = this.items.get(i);
+                if (item.getName().contains(key)) {
+                    result.add(item);
+                }
             }
             return result;
         }
@@ -126,11 +131,12 @@ public abstract class BaseTracker implements Tracker {
      */
     private int findIndex(String id) {
         int index = -1;
-        for (int i = 0; i < this.items.size(); i++) {
-            //getId(null) -NPE!!!
-            if (id.equals(this.items.get(i).getId())) {
-                index = i;
-                break;
+        if (id != null) {
+            for (int i = 0; i < this.items.size(); i++) {
+                if (id.equals(this.items.get(i).getId())) {
+                    index = i;
+                    break;
+                }
             }
         }
         return index;
