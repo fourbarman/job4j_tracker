@@ -1,7 +1,11 @@
 package ru.job4j.tracker;
 
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -13,6 +17,39 @@ import java.util.Random;
  */
 public enum TrackerSingleEnum implements Tracker {
     INSTANCE;
+
+    private Connection cn;
+
+    /**
+     * Connect to DB.
+     */
+    public void init() {
+        try (InputStream in = Tracker.class.getClassLoader().getResourceAsStream("app.properties")) {
+            Properties config = new Properties();
+            config.load(in);
+            Class.forName(config.getProperty("driver-class-name"));
+            cn = DriverManager.getConnection(
+                    config.getProperty("url"),
+                    config.getProperty("username"),
+                    config.getProperty("password")
+            );
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Close connection.
+     *
+     * @throws Exception e.
+     */
+    @Override
+    public void close() throws Exception {
+        if (cn != null) {
+            cn.close();
+        }
+    }
+
     /**
      * Random.
      */
@@ -34,7 +71,7 @@ public enum TrackerSingleEnum implements Tracker {
     public Item add(Item item) {
         if (item != null) {
             item.setId(this.generateId());
-            item.setTime(System.currentTimeMillis());
+            //item.setTime(System.currentTimeMillis());
             this.items.add(item);
         }
         return item;

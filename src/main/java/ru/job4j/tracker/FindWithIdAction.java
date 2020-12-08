@@ -32,7 +32,7 @@ public class FindWithIdAction extends BaseAction implements UserAction {
         if (tracker.findById(id) != null) {
             System.out.println("------------ Found item ------------");
             System.out.println(String.format(
-                    "Item's ID: %s Item's name: %s Description: %s Birth time: %d",
+                    "Item's ID: %s Item's name: %s Description: %s Birth time: %s",
                     tracker.findById(id).getId(),
                     tracker.findById(id).getName(),
                     tracker.findById(id).getDesc(),

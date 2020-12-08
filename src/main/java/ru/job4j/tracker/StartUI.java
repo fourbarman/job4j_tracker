@@ -16,17 +16,17 @@ public class StartUI {
      * Items storage.
      */
     private Tracker tracker;
-
-    /**
-     * Constructor.
-     *
-     * @param input   Input
-     * @param tracker Items storage.
-     */
-    public StartUI(Input input, Tracker tracker) {
-        this.input = input;
-        this.tracker = tracker;
-    }
+//
+//    /**
+//     * Constructor.
+//     *
+//     * @param input   Input
+//     * @param tracker Items storage.
+//     */
+//    public StartUI(Input input, Tracker tracker) {
+//        this.input = input;
+//        this.tracker = tracker;
+//    }
 
     /**
      * Constructor
@@ -72,16 +72,20 @@ public class StartUI {
     public static void main(String[] args) {
         Input input = new ConsoleInput();
         Input validate = new ValidateInput(input);
-        Tracker tracker = new TrackerNotSingle();
-        UserAction[] actions = {
-                new CreateAction("Add new item"),
-                new GetAllAction("Show all items"),
-                new ReplaceItemAction("Replace item"),
-                new DeleteItemAction("Delete item"),
-                new FindWithIdAction("Find item by ID"),
-                new FindWithNameAction("Find items by name"),
-                new ExitAction("Exit")
-        };
-        new StartUI().init(validate, tracker, actions);
+        try (Tracker tracker = new TrackerNotSingle()) {
+            tracker.init();
+            UserAction[] actions = {
+                    new CreateAction("Add new item"),
+                    new GetAllAction("Show all items"),
+                    new ReplaceItemAction("Replace item"),
+                    new DeleteItemAction("Delete item"),
+                    new FindWithIdAction("Find item by ID"),
+                    new FindWithNameAction("Find items by name"),
+                    new ExitAction("Exit")
+            };
+            new StartUI().init(validate, tracker, actions);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

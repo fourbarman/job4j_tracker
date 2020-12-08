@@ -33,7 +33,7 @@ public class FindWithNameAction extends BaseAction implements UserAction {
             System.out.println("Found items: ");
             for (Item items : tracker.findByName(name)) {
                 System.out.println(String.format(
-                        "Item's ID: %s Item's name: %s Description: %s Birth time: %d",
+                        "Item's ID: %s Item's name: %s Description: %s Birth time: %s",
                         items.getId(),
                         items.getName(),
                         items.getDesc(),

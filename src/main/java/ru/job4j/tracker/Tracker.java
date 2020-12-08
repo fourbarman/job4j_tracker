@@ -11,7 +11,12 @@ import java.util.Random;
  * @version 1
  * @since 21.11.2020.
  */
-public interface Tracker {
+public interface Tracker extends AutoCloseable{
+
+    /**
+     * Init DB connection.
+     */
+    void init();
 
     /**
      * Generate ID.
@@ -52,7 +57,6 @@ public interface Tracker {
      * @param key Searching key.
      * @return List<Item> List of found items.
      */
-    //Item[] findByName(String key);
     List<Item> findByName(String key);
 
     /**

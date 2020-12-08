@@ -1,27 +1,58 @@
 package ru.job4j.tracker;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.io.InputStream;
+import java.sql.*;
+import java.util.*;
 
 /**
  * BaseTracker.
  *
  * @author fourbarman (mailto:maks.java@yandex.ru)
- * @version 1
+ * @version 2
  * @since 21.11.2020
  */
 public abstract class BaseTracker implements Tracker {
+    private Connection cn;
+
+    /**
+     * Connect to DB.
+     */
+    public void init() {
+        try (InputStream in = Tracker.class.getClassLoader().getResourceAsStream("app.properties")) {
+            Properties config = new Properties();
+            config.load(in);
+            Class.forName(config.getProperty("driver-class-name"));
+            cn = DriverManager.getConnection(
+                    config.getProperty("url"),
+                    config.getProperty("username"),
+                    config.getProperty("password")
+            );
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Close connection.
+     *
+     * @throws Exception e.
+     */
+    @Override
+    public void close() throws Exception {
+        if (cn != null) {
+            cn.close();
+        }
+    }
+
     /**
      * Random.
      */
-
     private static final Random RN = new Random();
+
     /**
      * Item's storage.
      */
-    private final List<Item> items = new ArrayList<>();
+    //private final List<Item> items = new ArrayList<>();
 
     /**
      * Generate ID.
@@ -34,8 +65,15 @@ public abstract class BaseTracker implements Tracker {
     public Item add(Item item) {
         if (item != null) {
             item.setId(this.generateId());
-            item.setTime(System.currentTimeMillis());
-            this.items.add(item);
+            String query = "insert into items(id_item, name, description, created_time)" +
+                    "values("
+                    + "'" + item.getId() + "',"
+                    + "'" + item.getName() + "',"
+                    + "'" + item.getDesc() + "',"
+                    + "'" + item.getTime() + "'"
+                    + ");"
+                    ;
+            this.updQuery(query);
         }
         return item;
     }
@@ -56,13 +94,16 @@ public abstract class BaseTracker implements Tracker {
      * @param item New Item.
      */
     public boolean replace(String id, Item item) {
-        int index = this.findIndex(id);
-        if (index != -1) {
-            item.setId(id);
-            this.items.set(index, item);
-            return true;
-        }
-        return false;
+        String query = "UPDATE items SET (name, description, created_time)" +
+                "values("
+                + "'" + item.getName() + "',"
+                + "'" + item.getDesc() + "',"
+                + "'" + item.getTime() + "'"
+                + ") where id_item = " + id + ";"
+                ;
+        int res = updQuery(query);
+        return res == 1;
+
     }
 
     /**
@@ -72,12 +113,9 @@ public abstract class BaseTracker implements Tracker {
      * @return if success
      */
     public boolean delete(String id) {
-        int index = this.findIndex(id);
-        if (index != -1) {
-            this.items.remove(index);
-            return true;
-        }
-        return false;
+        String query = "DELETE FROM items WHERE id_item LIKE " + "'" + id + "';";
+        int res = updQuery(query);
+        return res == 1;
     }
 
     /**
@@ -86,7 +124,8 @@ public abstract class BaseTracker implements Tracker {
      * @return List<Item> All Items.
      */
     public List<Item> findAll() {
-        return this.items;
+        String query = "select * from items;";
+        return execQuery(query);
     }
 
     /**
@@ -96,18 +135,8 @@ public abstract class BaseTracker implements Tracker {
      * @return List<Item> list.
      */
     public List<Item> findByName(String key) {
-        if (key != null) {
-            List<Item> result = new ArrayList<>();
-            Item item;
-            for (int i = 0; i < this.items.size(); i++) {
-                item = this.items.get(i);
-                if (item.getName().contains(key)) {
-                    result.add(item);
-                }
-            }
-            return result;
-        }
-        return null;
+        String query = "SELECT * FROM items WHERE name LIKE " + "'%" + key + "%';";
+        return execQuery(query);
     }
 
     /**
@@ -116,29 +145,53 @@ public abstract class BaseTracker implements Tracker {
      * @param id ID.
      */
     public Item findById(String id) {
-        int index = findIndex(id);
-        if (index != -1) {
-            return this.items.get(index);
+        String query = "SELECT * FROM items WHERE id_item LIKE " + "'" + id + "';";
+        List<Item> list = execQuery(query);
+        if (list.size() == 1) {
+            return list.get(0);
         }
         return null;
     }
 
     /**
-     * Find Item index by ID.
+     * Returns List of found by query.
      *
-     * @param id ID.
-     * @return index.
+     * @param query Query.
+     * @return List.
      */
-    private int findIndex(String id) {
-        int index = -1;
-        if (id != null) {
-            for (int i = 0; i < this.items.size(); i++) {
-                if (id.equals(this.items.get(i).getId())) {
-                    index = i;
-                    break;
-                }
+    private List<Item> execQuery(String query) {
+        List<Item> list = new ArrayList<>();
+        try (Statement stmt = cn.createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String id = rs.getString("ID_ITEM");
+                String name = rs.getString("NAME");
+                String desc = rs.getString("DESCRIPTION");
+                String time = rs.getString("CREATED_TIME");
+                Item item = new Item(name, desc);
+                item.setId(id);
+                item.setTime(time);
+                list.add(item);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return index;
+        return list;
+    }
+
+    /**
+     * Update DB using query.
+     *
+     * @param query Query.
+     * @return number of rows updated.
+     */
+    private int updQuery(String query) {
+        int res = 0;
+        try (Statement stmt = cn.createStatement()) {
+           res = stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 }

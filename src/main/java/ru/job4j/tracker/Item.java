@@ -1,5 +1,9 @@
 package ru.job4j.tracker;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -25,7 +29,7 @@ public class Item {
     /**
      * Item's create time in millis.
      */
-    private long time;
+    private String time;
 
     /**
      * Constructor
@@ -36,6 +40,9 @@ public class Item {
     public Item(String name, String desc) {
         this.name = name;
         this.desc = desc;
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        this.time = currentDateTime.format(formatter);
     }
 
     /**
@@ -91,15 +98,22 @@ public class Item {
      *
      * @return time.
      */
-    public long getTime() {
+    public String getTime() {
         return time;
     }
 
     /**
-     * SSet time.
+     * Set time.
      */
-    public void setTime(long time) {
+    public void setTime(String time) {
         this.time = time;
+//        LocalDateTime currentDateTime = LocalDateTime.now();
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+//        this.time = currentDateTime.format(formatter);
+
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+//        Date resultDate = new Date();
+//        this.time = sdf.format(resultDate);
     }
 
     /**
