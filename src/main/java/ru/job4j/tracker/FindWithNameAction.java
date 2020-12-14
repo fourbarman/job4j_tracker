@@ -31,14 +31,8 @@ public class FindWithNameAction extends BaseAction implements UserAction {
         String name = input.ask("Enter item's name: ");
         if (tracker.findByName(name) != null) {
             System.out.println("Found items: ");
-            for (Item items : tracker.findByName(name)) {
-                System.out.println(String.format(
-                        "Item's ID: %s Item's name: %s Description: %s Birth time: %s",
-                        items.getId(),
-                        items.getName(),
-                        items.getDesc(),
-                        items.getTime())
-                );
+            for (Item item : tracker.findByName(name)) {
+                System.out.println(item.toString());
             }
         }
         return true;

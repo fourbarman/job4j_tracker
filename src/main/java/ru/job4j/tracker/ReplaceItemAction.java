@@ -29,24 +29,15 @@ public class ReplaceItemAction extends BaseAction implements UserAction {
     public boolean execute(Input input, Tracker tracker) {
         System.out.println("------------ Replace item ------------");
         String id = input.ask("Enter Item's ID: ");
-        if (tracker.findById(id) != null) {
+        Item oldItem = tracker.findById(id);
+        if (oldItem != null) {
             System.out.println("------------ Found item ------------");
-            System.out.println(String.format(
-                    "Item's ID: %s Item's name: %s Description: %s Birth time: %d",
-                    tracker.findById(id).getId(),
-                    tracker.findById(id).getName(),
-                    tracker.findById(id).getDesc(),
-                    tracker.findById(id).getTime()));
+            System.out.println(oldItem.toString());
             String name = input.ask("Enter new item's name: ");
             String desc = input.ask("Enter new item's description: ");
-            Item item = new Item(name, desc);
-            tracker.replace(id, item);
-            System.out.println(String.format(
-                    "Item's ID: %s Item's name: %s Description: %s Birth time: %d",
-                    tracker.findById(id).getId(),
-                    tracker.findById(id).getName(),
-                    tracker.findById(id).getDesc(),
-                    tracker.findById(id).getTime()));
+            Item newItem = new Item(name, desc);
+            tracker.replace(id, newItem);
+            System.out.println(tracker.findById(id).toString());
         }
         return true;
     }

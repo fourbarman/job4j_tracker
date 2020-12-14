@@ -28,14 +28,8 @@ public class GetAllAction extends BaseAction implements UserAction {
     @Override
     public boolean execute(Input input, Tracker tracker) {
         System.out.println("------------ All items ------------");
-        for (Item items : tracker.findAll()) {
-            System.out.println(String.format(
-                    "Item's ID: %s Item's name: %s Description: %s Birth time: %s",
-                    items.getId(),
-                    items.getName(),
-                    items.getDesc(),
-                    items.getTime())
-            );
+        for (Item item : tracker.findAll()) {
+            System.out.println(item.toString());
         }
         return true;
     }

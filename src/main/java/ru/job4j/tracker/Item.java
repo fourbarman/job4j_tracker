@@ -1,9 +1,12 @@
 package ru.job4j.tracker;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.format.FormatStyle;
+import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -14,22 +17,26 @@ import java.util.Objects;
  * @since 21.11.2020.
  */
 public class Item {
+
     /**
      * Item's ID.
      */
     private String id;
+
     /**
      * Item's name.
      */
     private String name;
+
     /**
      * Item's description.
      */
     private String desc;
+
     /**
      * Item's create time in millis.
      */
-    private String time;
+    private Instant time;
 
     /**
      * Constructor
@@ -40,9 +47,7 @@ public class Item {
     public Item(String name, String desc) {
         this.name = name;
         this.desc = desc;
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        this.time = currentDateTime.format(formatter);
+        this.time = Instant.now();
     }
 
     /**
@@ -98,22 +103,28 @@ public class Item {
      *
      * @return time.
      */
-    public String getTime() {
+    public Instant getTime() {
         return time;
+    }
+
+    /**
+     * Returns creation time.
+     *
+     * @return time.
+     */
+    public String getFormattedTime() {
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        .withLocale(new Locale("ru"))
+                        .withZone(ZoneId.systemDefault());
+        return formatter.format(this.time);
     }
 
     /**
      * Set time.
      */
-    public void setTime(String time) {
+    public void setTime(Instant time) {
         this.time = time;
-//        LocalDateTime currentDateTime = LocalDateTime.now();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-//        this.time = currentDateTime.format(formatter);
-
-//        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-//        Date resultDate = new Date();
-//        this.time = sdf.format(resultDate);
     }
 
     /**
@@ -137,12 +148,27 @@ public class Item {
     }
 
     /**
-     * Overrides method hashCode.
+     * HashCode.
      *
      * @return hash.
      */
     @Override
     public int hashCode() {
         return Objects.hash(id, name, desc, time);
+    }
+
+    /**
+     * toString.
+     *
+     * @return String.
+     */
+    @Override
+    public String toString() {
+        return String.format(
+                "ID: %s | Name: %s | Description: %s | Created: %s |",
+                getId(),
+                getName(),
+                getDesc(),
+                getFormattedTime());
     }
 }

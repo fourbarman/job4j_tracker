@@ -29,15 +29,10 @@ public class FindWithIdAction extends BaseAction implements UserAction {
     public boolean execute(Input input, Tracker tracker) {
         System.out.println("------------ Find Item By ID ------------");
         String id = input.ask("Enter item's ID: ");
-        if (tracker.findById(id) != null) {
+        Item item = tracker.findById(id);
+        if (item != null) {
             System.out.println("------------ Found item ------------");
-            System.out.println(String.format(
-                    "Item's ID: %s Item's name: %s Description: %s Birth time: %s",
-                    tracker.findById(id).getId(),
-                    tracker.findById(id).getName(),
-                    tracker.findById(id).getDesc(),
-                    tracker.findById(id).getTime())
-            );
+            System.out.println(item.toString());
         }
         return true;
     }

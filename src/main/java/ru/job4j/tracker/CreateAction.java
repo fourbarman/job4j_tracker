@@ -33,13 +33,7 @@ public class CreateAction extends BaseAction implements UserAction {
         Item item = new Item(name, desc);
         tracker.add(item);
         System.out.println("------------ New item added ------------");
-        System.out.println(String.format(
-                "Item's ID: %s Item's name: %s Description: %s Birth time: %s",
-                item.getId(),
-                item.getName(),
-                item.getDesc(),
-                item.getTime())
-        );
+        System.out.println(item.toString());
         return true;
     }
 }

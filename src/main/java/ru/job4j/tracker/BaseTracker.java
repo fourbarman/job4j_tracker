@@ -50,13 +50,6 @@ public abstract class BaseTracker implements Tracker {
     private static final Random RN = new Random();
 
     /**
-     * Item's storage.
-     */
-    //private final List<Item> items = new ArrayList<>();
-
-    /**
-     * Generate ID.
-     * Set creation time.
      * Adds Item to storage.
      *
      * @param item New Item.
@@ -65,15 +58,16 @@ public abstract class BaseTracker implements Tracker {
     public Item add(Item item) {
         if (item != null) {
             item.setId(this.generateId());
-            String query = "insert into items(id_item, name, description, created_time)" +
-                    "values("
-                    + "'" + item.getId() + "',"
-                    + "'" + item.getName() + "',"
-                    + "'" + item.getDesc() + "',"
-                    + "'" + item.getTime() + "'"
-                    + ");"
-                    ;
-            this.updQuery(query);
+            String addQuery = "INSERT INTO ITEMS (id_item, name, description, created_time) VALUES (?, ?, ? ,?)";
+            try (PreparedStatement ps = cn.prepareStatement(addQuery)) {
+                ps.setString(1, item.getId());
+                ps.setString(2, item.getName());
+                ps.setString(3, item.getDesc());
+                ps.setObject(4, Timestamp.from(item.getTime()));
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return item;
     }
@@ -94,16 +88,20 @@ public abstract class BaseTracker implements Tracker {
      * @param item New Item.
      */
     public boolean replace(String id, Item item) {
-        String query = "UPDATE items SET (name, description, created_time)" +
-                "values("
-                + "'" + item.getName() + "',"
-                + "'" + item.getDesc() + "',"
-                + "'" + item.getTime() + "'"
-                + ") where id_item = " + id + ";"
-                ;
-        int res = updQuery(query);
+        int res = 0;
+        if (id != null && item != null) {
+            String replaceQuery = "UPDATE ITEMS SET name = ?, description = ?, created_time = ?  WHERE id_item = ?";
+            try (PreparedStatement ps = cn.prepareStatement(replaceQuery)) {
+                ps.setString(1, item.getName());
+                ps.setString(2, item.getDesc());
+                ps.setObject(3, Timestamp.from(item.getTime()));
+                ps.setString(4, id);
+                res = ps.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         return res == 1;
-
     }
 
     /**
@@ -113,8 +111,16 @@ public abstract class BaseTracker implements Tracker {
      * @return if success
      */
     public boolean delete(String id) {
-        String query = "DELETE FROM items WHERE id_item LIKE " + "'" + id + "';";
-        int res = updQuery(query);
+        int res = 0;
+        if (id != null) {
+            String deleteQuery = "DELETE FROM ITEMS WHERE id_item LIKE ?";
+            try (PreparedStatement ps = cn.prepareStatement(deleteQuery)) {
+                ps.setString(1, id);
+                res = ps.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         return res == 1;
     }
 
@@ -124,8 +130,8 @@ public abstract class BaseTracker implements Tracker {
      * @return List<Item> All Items.
      */
     public List<Item> findAll() {
-        String query = "select * from items;";
-        return execQuery(query);
+        String findAllQuery = "SELECT * FROM ITEMS";
+        return execQuery(findAllQuery);
     }
 
     /**
@@ -135,8 +141,8 @@ public abstract class BaseTracker implements Tracker {
      * @return List<Item> list.
      */
     public List<Item> findByName(String key) {
-        String query = "SELECT * FROM items WHERE name LIKE " + "'%" + key + "%';";
-        return execQuery(query);
+        String findByNameQuery = "SELECT * FROM items WHERE name LIKE " + "'%" + key + "%'";
+        return execQuery(findByNameQuery);
     }
 
     /**
@@ -147,14 +153,11 @@ public abstract class BaseTracker implements Tracker {
     public Item findById(String id) {
         String query = "SELECT * FROM items WHERE id_item LIKE " + "'" + id + "';";
         List<Item> list = execQuery(query);
-        if (list.size() == 1) {
-            return list.get(0);
-        }
-        return null;
+        return list.get(0);
     }
 
     /**
-     * Returns List of found by query.
+     * Returns List of Item objects found by query.
      *
      * @param query Query.
      * @return List.
@@ -167,31 +170,15 @@ public abstract class BaseTracker implements Tracker {
                 String id = rs.getString("ID_ITEM");
                 String name = rs.getString("NAME");
                 String desc = rs.getString("DESCRIPTION");
-                String time = rs.getString("CREATED_TIME");
+                Timestamp timestamp = rs.getObject("CREATED_TIME", Timestamp.class);
                 Item item = new Item(name, desc);
                 item.setId(id);
-                item.setTime(time);
+                item.setTime(timestamp.toInstant());
                 list.add(item);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
-    }
-
-    /**
-     * Update DB using query.
-     *
-     * @param query Query.
-     * @return number of rows updated.
-     */
-    private int updQuery(String query) {
-        int res = 0;
-        try (Statement stmt = cn.createStatement()) {
-           res = stmt.executeUpdate(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
     }
 }
