@@ -4,8 +4,8 @@ package ru.job4j.tracker;
  * FindWithIdAction.
  *
  * @author fourbarman (maks.java@yandex.ru).
- * @version 1.
- * @since 21.11.2020.
+ * @version 2.
+ * @since 11.01.2021.
  */
 public class FindWithIdAction extends BaseAction implements UserAction {
 
@@ -33,6 +33,8 @@ public class FindWithIdAction extends BaseAction implements UserAction {
         if (item != null) {
             System.out.println("------------ Found item ------------");
             System.out.println(item.toString());
+        } else {
+            System.out.println("------------ Nothing found ------------");
         }
         return true;
     }

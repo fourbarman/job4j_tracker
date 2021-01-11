@@ -8,7 +8,7 @@ import java.util.List;
  *
  * @author fourbarman (mailto:maks.java@yandex.ru)
  * @version 1
- * @since 21.11.2020.
+ * @since 11.01.2021.
  */
 public class TrackerNotSingle extends BaseTracker {
     /**
@@ -22,15 +22,6 @@ public class TrackerNotSingle extends BaseTracker {
     @Override
     public Item add(Item item) {
         return super.add(item);
-    }
-
-    /**
-     * Generate ID.
-     *
-     * @return ID.
-     */
-    String generateId() {
-        return super.generateId();
     }
 
     /**

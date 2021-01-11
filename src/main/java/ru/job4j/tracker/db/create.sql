@@ -7,7 +7,6 @@
 create table items
 (
     id   serial primary key,
-    id_item varchar(255),
     name varchar(255),
     description varchar(255),
     created_time timestamp

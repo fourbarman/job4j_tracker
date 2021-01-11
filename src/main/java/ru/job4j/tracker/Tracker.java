@@ -8,10 +8,10 @@ import java.util.Random;
  * Tracker.
  *
  * @author fourbarman (mailto:maks.java@yandex.ru)
- * @version 1
- * @since 21.11.2020.
+ * @version 2
+ * @since 11.01.2021.
  */
-public interface Tracker extends AutoCloseable{
+public interface Tracker extends AutoCloseable {
 
     /**
      * Init DB connection.

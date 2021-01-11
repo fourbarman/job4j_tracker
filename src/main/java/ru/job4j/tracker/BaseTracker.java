@@ -8,8 +8,8 @@ import java.util.*;
  * BaseTracker.
  *
  * @author fourbarman (mailto:maks.java@yandex.ru)
- * @version 2
- * @since 21.11.2020
+ * @version 3
+ * @since 11.01.2021
  */
 public abstract class BaseTracker implements Tracker {
     private Connection cn;
@@ -45,40 +45,33 @@ public abstract class BaseTracker implements Tracker {
     }
 
     /**
-     * Random.
-     */
-    private static final Random RN = new Random();
-
-    /**
      * Adds Item to storage.
      *
      * @param item New Item.
      * @return Item.
      */
     public Item add(Item item) {
+        int affRows;
         if (item != null) {
-            item.setId(this.generateId());
-            String addQuery = "INSERT INTO ITEMS (id_item, name, description, created_time) VALUES (?, ?, ? ,?)";
-            try (PreparedStatement ps = cn.prepareStatement(addQuery)) {
-                ps.setString(1, item.getId());
-                ps.setString(2, item.getName());
-                ps.setString(3, item.getDesc());
-                ps.setObject(4, Timestamp.from(item.getTime()));
-                ps.executeUpdate();
+            //item.setId(this.generateId());
+            String addQuery = "INSERT INTO ITEMS (name, description, created_time) VALUES (?, ? ,?)";
+            try (PreparedStatement ps = cn.prepareStatement(addQuery, Statement.RETURN_GENERATED_KEYS)) {
+                //ps.setString(1, item.getId());
+                ps.setString(1, item.getName());
+                ps.setString(2, item.getDesc());
+                ps.setObject(3, Timestamp.from(item.getTime()));
+
+                affRows = ps.executeUpdate();
+                if (affRows > 0) {
+                    ResultSet keys = ps.getGeneratedKeys();
+                    keys.next();
+                    item.setId(keys.getString(1));
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
         return item;
-    }
-
-    /**
-     * Generate ID.
-     *
-     * @return ID.
-     */
-    String generateId() {
-        return String.valueOf(System.currentTimeMillis() + RN.nextInt());
     }
 
     /**
@@ -89,13 +82,15 @@ public abstract class BaseTracker implements Tracker {
      */
     public boolean replace(String id, Item item) {
         int res = 0;
-        if (id != null && item != null) {
-            String replaceQuery = "UPDATE ITEMS SET name = ?, description = ?, created_time = ?  WHERE id_item = ?";
+        Integer intId = parseStringToInteger(id);
+        //int_id = parseStringToInteger(id);
+        if (intId != null && item != null) {
+            String replaceQuery = "UPDATE ITEMS SET name = ?, description = ?, created_time = ?  WHERE id = ?";
             try (PreparedStatement ps = cn.prepareStatement(replaceQuery)) {
                 ps.setString(1, item.getName());
                 ps.setString(2, item.getDesc());
                 ps.setObject(3, Timestamp.from(item.getTime()));
-                ps.setString(4, id);
+                ps.setInt(4, intId);
                 res = ps.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -112,10 +107,11 @@ public abstract class BaseTracker implements Tracker {
      */
     public boolean delete(String id) {
         int res = 0;
-        if (id != null) {
-            String deleteQuery = "DELETE FROM ITEMS WHERE id_item LIKE ?";
+        Integer intId = parseStringToInteger(id);
+        if (intId != null) {
+            String deleteQuery = "DELETE FROM ITEMS WHERE id = ?";
             try (PreparedStatement ps = cn.prepareStatement(deleteQuery)) {
-                ps.setString(1, id);
+                ps.setInt(1, intId);
                 res = ps.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -151,9 +147,16 @@ public abstract class BaseTracker implements Tracker {
      * @param id ID.
      */
     public Item findById(String id) {
-        String query = "SELECT * FROM items WHERE id_item LIKE " + "'" + id + "';";
-        List<Item> list = execQuery(query);
-        return list.get(0);
+        Item item = null;
+        Integer intId = parseStringToInteger(id);
+        if (intId != null) {
+            String query = "SELECT * FROM items WHERE id = " + "'" + id + "'";
+            List<Item> list = execQuery(query);
+            if (!list.isEmpty()) {
+                item = list.get(0);
+            }
+        }
+        return item;
     }
 
     /**
@@ -167,7 +170,7 @@ public abstract class BaseTracker implements Tracker {
         try (Statement stmt = cn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                String id = rs.getString("ID_ITEM");
+                String id = rs.getString("ID");
                 String name = rs.getString("NAME");
                 String desc = rs.getString("DESCRIPTION");
                 Timestamp timestamp = rs.getObject("CREATED_TIME", Timestamp.class);
@@ -180,5 +183,20 @@ public abstract class BaseTracker implements Tracker {
             e.printStackTrace();
         }
         return list;
+    }
+
+    /**
+     * Parse String to Integer.
+     * Returns null if NFE thrown.
+     *
+     * @param s String string.
+     * @return Integer value.
+     */
+    private Integer parseStringToInteger(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

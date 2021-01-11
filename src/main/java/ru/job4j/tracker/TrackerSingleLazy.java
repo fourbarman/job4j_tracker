@@ -8,8 +8,8 @@ import java.util.Random;
  * TrackerSingleLazy.
  *
  * @author fourbarman (mailto:maks.java@yandex.ru)
- * @version 1
- * @since 21.11.2020.
+ * @version 2
+ * @since 11.01.2021.
  */
 public class TrackerSingleLazy extends BaseTracker {
     private static TrackerSingleLazy instance;
@@ -35,15 +35,6 @@ public class TrackerSingleLazy extends BaseTracker {
     @Override
     public Item add(Item item) {
         return super.add(item);
-    }
-
-    /**
-     * Generate ID.
-     *
-     * @return ID.
-     */
-    String generateId() {
-        return super.generateId();
     }
 
     /**

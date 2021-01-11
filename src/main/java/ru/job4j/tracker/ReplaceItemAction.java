@@ -4,8 +4,8 @@ package ru.job4j.tracker;
  * ReplaceItemAction.
  *
  * @author fourbarman (maks.java@yandex.ru).
- * @version 1.
- * @since 21.11.2020.
+ * @version 2.
+ * @since 11.01.2021.
  */
 public class ReplaceItemAction extends BaseAction implements UserAction {
 
@@ -38,6 +38,8 @@ public class ReplaceItemAction extends BaseAction implements UserAction {
             Item newItem = new Item(name, desc);
             tracker.replace(id, newItem);
             System.out.println(tracker.findById(id).toString());
+        } else {
+            System.out.println("------------ Nothing found ------------");
         }
         return true;
     }
