@@ -12,6 +12,14 @@ import java.util.*;
  * @since 11.01.2021
  */
 public abstract class BaseTracker implements Tracker {
+    public BaseTracker() {
+
+    }
+
+    public BaseTracker(Connection connection) {
+        this.cn = connection;
+    }
+
     private Connection cn;
 
     /**
@@ -83,7 +91,6 @@ public abstract class BaseTracker implements Tracker {
     public boolean replace(String id, Item item) {
         int res = 0;
         Integer intId = parseStringToInteger(id);
-        //int_id = parseStringToInteger(id);
         if (intId != null && item != null) {
             String replaceQuery = "UPDATE ITEMS SET name = ?, description = ?, created_time = ?  WHERE id = ?";
             try (PreparedStatement ps = cn.prepareStatement(replaceQuery)) {

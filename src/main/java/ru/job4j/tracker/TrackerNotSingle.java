@@ -1,6 +1,7 @@
 package ru.job4j.tracker;
 
 import java.lang.*;
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -11,6 +12,14 @@ import java.util.List;
  * @since 11.01.2021.
  */
 public class TrackerNotSingle extends BaseTracker {
+
+    public TrackerNotSingle() {
+
+    }
+
+    public TrackerNotSingle(Connection connection) {
+        super(connection);
+    }
     /**
      * Generate ID.
      * Set creation time.
