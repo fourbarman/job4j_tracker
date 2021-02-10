@@ -1,6 +1,5 @@
 package ru.job4j.tracker;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -16,11 +15,9 @@ import static org.junit.Assert.*;
  *
  * @author fourbarman (mailto:maks.java@yandex.ru)
  * @version $Id$
- * @since 05.02.2021.
+ * @since 10.02.2021.
  */
 public class TrackerTest {
-    Tracker tracker;
-    Item item1, item2, item3, item4, item5, newItem;
 
     public Connection init() {
         try (InputStream in = TrackerNotSingle.class.getClassLoader().getResourceAsStream("apptest.properties")) {
@@ -35,20 +32,6 @@ public class TrackerTest {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    /**
-     * Set variables.
-     */
-    @Before
-    public void setVar() {
-        tracker = new TrackerNotSingle();
-        item1 = new Item("firstItem", "firstDescription");
-        item2 = new Item("secondItem", "secondDescription");
-        item3 = new Item("thirdItem", "thirdDescription");
-        item4 = new Item("fourthItem", "fourthDescription");
-        item5 = new Item("fifthItem", "fifthDescription");
-        newItem = new Item("newItem", "newDescription");
     }
 
     /**
@@ -69,7 +52,7 @@ public class TrackerTest {
     @Test
     public void whenAddOneItemThenStorageContainsThatItem() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
+            tracker.add(new Item("firstItem", "firstDescription"));
             assertThat(tracker.findAll().size(), is(1));
         }
     }
@@ -81,11 +64,11 @@ public class TrackerTest {
     @Test
     public void whenAddOneItemThenStorageContainsOneItem() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            tracker.add(item4);
-            tracker.add(item5);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
+            tracker.add(new Item("fourthItem", "fourthDescription"));
+            tracker.add(new Item("fifthItem", "fifthDescription"));
             assertThat(tracker.findAll().size(), is(5));
         }
     }
@@ -108,7 +91,7 @@ public class TrackerTest {
     @Test
     public void whenAddNewItemTheStorageContainsTheSameItem() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            assertThat(tracker.add(item1), is(item1));
+            assertThat(tracker.add(new Item("firstItem", "firstDescription")).getName(), is("firstItem"));
         }
     }
 
@@ -119,9 +102,9 @@ public class TrackerTest {
     @Test
     public void whenAddThreeNewItemsTheStorageContainsSameItems() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            assertThat(tracker.add(item1), is(item1));
-            assertThat(tracker.add(item2), is(item2));
-            assertThat(tracker.add(item3), is(item3));
+            assertThat(tracker.add(new Item("firstItem", "firstDescription")).getName(), is("firstItem"));
+            assertThat(tracker.add(new Item("secondItem", "secondDescription")).getName(), is("secondItem"));
+            assertThat(tracker.add(new Item("thirdItem", "thirdDescription")).getName(), is("thirdItem"));
             assertThat(tracker.findAll().size(), is(3));
         }
     }
@@ -133,9 +116,9 @@ public class TrackerTest {
     @Test
     public void whenNotFoundByNullId() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
             assertNull(tracker.findById(null));
         }
     }
@@ -147,10 +130,10 @@ public class TrackerTest {
     @Test
     public void whenFoundById() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            assertThat(tracker.findById(item2.getId()).getName(), is(item2.getName()));
+            tracker.add(new Item("firstItem", "firstDescription"));
+            Item item = tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
+            assertThat(tracker.findById(item.getId()).getName(), is(item.getName()));
         }
     }
 
@@ -161,9 +144,9 @@ public class TrackerTest {
     @Test
     public void whenNotFoundByWrongId() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
             assertNull(tracker.findById("testId"));
         }
     }
@@ -175,9 +158,9 @@ public class TrackerTest {
     @Test
     public void whenNotFoundByNullNameReturnsNull() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
             assertTrue(tracker.findByName(null).isEmpty());
         }
     }
@@ -189,11 +172,11 @@ public class TrackerTest {
     @Test
     public void whenFoundByNameThenReturnOneItem() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            assertThat(tracker.findByName(item2.getName()).size(), is(1));
-            assertThat(tracker.findByName(item2.getName()).get(0).getName(), is(item2.getName()));
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
+            assertThat(tracker.findByName("secondItem").size(), is(1));
+            assertThat(tracker.findByName("secondItem").get(0).getName(), is("secondItem"));
         }
     }
 
@@ -204,11 +187,11 @@ public class TrackerTest {
     @Test
     public void whenFoundBySameNameThenReturnSameItems() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            tracker.add(item4);
-            tracker.add(item5);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
+            tracker.add(new Item("fourthItem", "fourthDescription"));
+            tracker.add(new Item("fifthItem", "fifthDescription"));
             assertThat(tracker.findByName("Item").size(), is(5));
         }
     }
@@ -220,9 +203,9 @@ public class TrackerTest {
     @Test
     public void whenNotFoundByWrongNameReturnsNull() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
             assertTrue(tracker.findByName("testName").isEmpty());
         }
     }
@@ -234,9 +217,9 @@ public class TrackerTest {
     @Test
     public void whenDeleteItemWithNullId() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
             assertFalse(tracker.delete(null));
             assertThat(tracker.findAll().size(), is(3));
         }
@@ -249,11 +232,11 @@ public class TrackerTest {
     @Test
     public void whenDeleteItemThenSuccess() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            assertTrue(tracker.delete(item2.getId()));
-            assertFalse(tracker.findAll().contains(item2));
+            tracker.add(new Item("firstItem", "firstDescription"));
+            Item item = tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
+            assertTrue(tracker.delete(item.getId()));
+            assertFalse(tracker.findAll().contains(item));
             assertThat(tracker.findAll().size(), is(2));
         }
     }
@@ -265,9 +248,9 @@ public class TrackerTest {
     @Test
     public void whenDeleteItemWithWrongIdThenReturnFalse() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
             assertFalse(tracker.delete("wrong id"));
             assertThat(tracker.findAll().size(), is(3));
         }
@@ -280,9 +263,9 @@ public class TrackerTest {
     @Test
     public void whenReplaceItemWithNullId() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("secondItem", "secondDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
             assertFalse(tracker.replace(null, null));
             assertThat(tracker.findAll().size(), is(3));
         }
@@ -295,12 +278,13 @@ public class TrackerTest {
     @Test
     public void whenReplaceItemThenStorageHasSameNumberOfItems() throws Exception {
         try (Tracker tracker = new TrackerNotSingle(ConnectionRollback.create(this.init()))) {
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            assertTrue(tracker.replace(item2.getId(), newItem));
+            tracker.add(new Item("firstItem", "firstDescription"));
+            tracker.add(new Item("thirdItem", "thirdDescription"));
+            Item item = tracker.add(new Item("secondItem", "secondDescription"));
+            Item newItem = new Item("newItem", "newDescription");
+            assertTrue(tracker.replace(item.getId(), newItem));
             assertThat(tracker.findAll().size(), is(3));
-            assertThat(tracker.findById(item2.getId()).getName(), is(newItem.getName()));
+            assertThat(tracker.findById(item.getId()).getName(), is(newItem.getName()));
         }
     }
 }
