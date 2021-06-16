@@ -8,31 +8,6 @@ package ru.job4j.tracker;
  * @since 21.11.2020.
  */
 public class StartUI {
-    /**
-     * Get data from user.
-     */
-    private Input input;
-    /**
-     * Items storage.
-     */
-    private Tracker tracker;
-//
-//    /**
-//     * Constructor.
-//     *
-//     * @param input   Input
-//     * @param tracker Items storage.
-//     */
-//    public StartUI(Input input, Tracker tracker) {
-//        this.input = input;
-//        this.tracker = tracker;
-//    }
-
-    /**
-     * Constructor
-     */
-    public StartUI() {
-    }
 
     /**
      * Initialises program run while not stopped.
@@ -63,6 +38,17 @@ public class StartUI {
         }
     }
 
+    private static Tracker getTracker(String[] args) {
+        Tracker tracker = new TrackerNotSingle();
+        for (int i = 0; i < args.length; i++) {
+            if ("-profile".equals(args[i])) {
+                System.out.println("args: " + args[i]);
+                tracker = new MemTracker();
+            }
+        }
+        return tracker;
+    }
+
     /**
      * Main method.
      * Program start.
@@ -72,7 +58,8 @@ public class StartUI {
     public static void main(String[] args) {
         Input input = new ConsoleInput();
         Input validate = new ValidateInput(input);
-        try (Tracker tracker = new TrackerNotSingle()) {
+        //try (Tracker tracker = new TrackerNotSingle()) {
+        try (Tracker tracker = getTracker(args)) {
             tracker.init();
             UserAction[] actions = {
                     new CreateAction("Add new item"),
