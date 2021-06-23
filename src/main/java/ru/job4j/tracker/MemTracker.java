@@ -9,13 +9,13 @@ public class MemTracker implements Tracker {
     /**
      * Constructor.
      */
-    public MemTracker() {
-        n = 10000;
+    public MemTracker(int num) {
+        n = num;
         ids = new ArrayList<>();
     }
 
     /**
-     * Random.
+     * Random for generating random id.
      */
     private static final Random RN = new Random();
     /**
@@ -33,9 +33,15 @@ public class MemTracker implements Tracker {
      */
     @Override
     public void init() {
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         ids = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             ids.add(this.add(new Item("TEST" + i, "TEST" + i)).getId());
+            System.out.println("Added: " + i);
         }
     }
 

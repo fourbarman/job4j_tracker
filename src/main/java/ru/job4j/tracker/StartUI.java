@@ -38,12 +38,33 @@ public class StartUI {
         }
     }
 
+    /**
+     * Parse number
+     * @param s String number.
+     * @return int.
+     */
+    private static int parseNumber(String s) {
+        int number = 0;
+        try {
+            number = Integer.parseInt(s);
+        } catch (NumberFormatException numberFormatException) {
+            numberFormatException.printStackTrace();
+        }
+        return number;
+    }
+
+    /**
+     * Returns Tracker instance in case of args.
+     * @param args Arguments.
+     * @return Tracker instance.
+     */
     private static Tracker getTracker(String[] args) {
         Tracker tracker = new TrackerNotSingle();
         for (int i = 0; i < args.length; i++) {
             if ("-profile".equals(args[i])) {
-                System.out.println("args: " + args[i]);
-                tracker = new MemTracker();
+                if (args[i + 1].length() > 0 && args[i + 1].matches("\\d+")) {
+                    tracker = new MemTracker(parseNumber(args[i + 1]));
+                }
             }
         }
         return tracker;
